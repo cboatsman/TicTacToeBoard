@@ -19,7 +19,12 @@ TicTacToeBoard::TicTacToeBoard()
 **/
 Piece TicTacToeBoard::toggleTurn()
 {
-  return Invalid;
+	if(turn == X) {
+		turn = O;
+	} else {
+		turn = X;
+	}
+  return turn;
 }
 
 /**
@@ -33,13 +38,23 @@ Piece TicTacToeBoard::toggleTurn()
 **/ 
 Piece TicTacToeBoard::placePiece(int row, int column)
 {
-	if( (row || column) <= BOARDSIZE ) {
-		Piece piece = new Piece;
-		piece = turn;
-		board[row][column] = piece;
+	Piece piece;
+	if ( (row >= 0) && (column >= 0) && (row < BOARDSIZE) && (column < BOARDSIZE) ) {
+	// Location is within bounds
+		if ( getPiece(row,column) == Blank ) {
+			// Location is blank, so we can place piece
+			board[row][column] = turn;
+			piece = turn;
+			toggleTurn();
+			return piece;
+		} else {
+			// Location is within bounds but a piece exists at location, so return piece
+			piece = getPiece(row,column);
+			return piece;
+		}
 	}
-	
-  return Invalid;
+	// Location is out of bounds, so we return invalid
+	return Invalid;
 }
 
 /**
@@ -48,7 +63,11 @@ Piece TicTacToeBoard::placePiece(int row, int column)
 **/
 Piece TicTacToeBoard::getPiece(int row, int column)
 {
-	Piece player;
+	Piece piece = board[row][column];
+	if ( (row > 0) && (column > 0) && (row <= BOARDSIZE) && (column <= BOARDSIZE) ) {
+	// Location is within bounds
+		return piece;
+	}
   return Invalid;
 }
 
