@@ -20,3 +20,13 @@ TEST(TicTacToeBoardTest, sanityCheck)
 	ASSERT_TRUE(true);
 }
 */
+
+TEST(TicTacToeBoardTest, boardIsBlank)
+{
+	TicTacToeBoard board;
+	for(int i=0; i<BOARDSIZE; i++) {
+		for(int j=0; j<BOARDSIZE; j++) {
+			ASSERT_TRUE(board.getPiece(i,j) == Blank);
+		}
+	}
+}
