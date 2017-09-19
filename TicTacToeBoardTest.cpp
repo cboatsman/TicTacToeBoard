@@ -21,44 +21,230 @@ TEST(TicTacToeBoardTest, sanityCheck)
 }
 */
 
-TEST(TicTacToeBoardTest, boardIsBlank)
+TEST(TicTacToeBoardTest, newBoardIsBlank)
 {
 	TicTacToeBoard board;
 	Piece piece;
+	bool boardIsBlank = true;
 	for(int i=0; i<BOARDSIZE; i++) {
 		for(int j=0; j<BOARDSIZE; j++) {
 			piece = board.getPiece(i,j);
-			ASSERT_TRUE(piece == Blank);
+			if(piece != Blank) {
+				boardIsBlank = false;
+				break;
+			}
 		}
 	}
+	
+	ASSERT_TRUE(boardIsBlank);
 }
 
-TEST(TicTacToeBoardTest, placeOutOfBounds)
+TEST(TicTacToeBoardTest, getPieceAtLocation)
 {
 	TicTacToeBoard board;
-	Piece piece = O;
+	int row=0, column=0;
+	Piece piece;
+	board.placePiece(row,column);
+	piece = board.getPiece(row,column);
+	ASSERT_TRUE(piece == X);
+	piece = board.getPiece(row+1,column);
+	ASSERT_TRUE(piece == Blank);
+}
+
+TEST(TicTacToeBoardTest, getPieceBlank)
+{
+	TicTacToeBoard board;
+	int row=0, column=0;
+	Piece piece;
+	piece = board.getPiece(row,column);
+	ASSERT_TRUE(piece == Blank);
+}
+
+TEST(TicTacToeBoardTest, getPieceInvalid)
+{
+	TicTacToeBoard board;
+	int row=BOARDSIZE+1, column=BOARDSIZE+1;
+	Piece piece;
+	piece = board.getPiece(row,column);
+	ASSERT_TRUE(piece == Invalid);
+}
+
+TEST(TicTacToeBoardTest, placePieceOutOfBounds)
+{
+	TicTacToeBoard board;
+	Piece piece;
 	int overflow = BOARDSIZE+1;	
 	piece = board.placePiece(overflow,overflow);
 	ASSERT_TRUE(piece == Invalid);
 }
 
-TEST(TicTacToeBoardTest, attemptPlayOnExistingSpot)
+TEST(TicTacToeBoardTest, placePieceAttemptExistingThenBlank)
 {
 	TicTacToeBoard board;
-	Piece piece = O;
 	int row = 0, column = 0;
+	Piece piece;
+	piece = board.placePiece(row,column); // X first play
+	ASSERT_TRUE(piece == X);
+	piece = board.placePiece(row,column); // O first attempt
+	ASSERT_TRUE(piece == X);
+	piece = board.placePiece(row+1,column+1); // O first play
+	// assertion to verify turn did not switch back to X
+	ASSERT_TRUE(piece == O);
+}
+
+TEST(TicTacToeBoardTest, placePiece)
+{
+	TicTacToeBoard board;
+	int row = 0, column = 0;
+	Piece piece;
 	piece = board.placePiece(row,column);
-	piece = board.placePiece(row,column);
-	ASSERT_TRUE(piece == Invalid);
+	ASSERT_TRUE(piece == X);
 
 }
 
-TEST(TicTacToeBoardTest, attemptPlay)
+TEST(TicTacToeBoardTest, toggleTurnVerification)
+{
+	TicTacToeBoard board;
+	int row=0, column = 0;
+	Piece piece;
+	piece = board.placePiece(row,column);
+	ASSERT_TRUE(piece == X);
+	piece = board.placePiece(row+1,column+1);
+	ASSERT_TRUE(piece == O);
+	piece = board.placePiece(row,column+1);
+	ASSERT_TRUE(piece == X);
+	piece = board.placePiece(row+1,column);
+	ASSERT_TRUE(piece == O);
+}
+
+TEST(TicTacToeBoardTest, getWinnerOfFullBoardDraw)
 {
 	TicTacToeBoard board;
 	Piece piece;
-	int row = 0, column = 0;
-	piece = board.placePiece(row,column);
-	ASSERT_TRUE( (piece == 0) || (piece == X) );
+	/*
+	X O X
+    	O O X
+	X X O
+	*/
+	board.placePiece(0,0);
+	board.placePiece(0,1);
+	board.placePiece(0,2);
+	board.placePiece(1,0);
+	board.placePiece(1,2);
+	board.placePiece(1,1);
+	board.placePiece(2,0);	
+	board.placePiece(2,2);
+	board.placePiece(2,1);
 
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == Blank);
+}
+
+TEST(TicTacToeBoardTest, getWinnerByRowA)
+{
+	TicTacToeBoard board;
+	Piece piece;
+	/*
+	X X X
+	O O X
+	O X O
+	*/
+	
+	board.placePiece(0,0);
+	board.placePiece(1,0);
+	board.placePiece(0,1);
+	board.placePiece(1,1);
+	board.placePiece(0,2);
+	board.placePiece(2,0);
+	board.placePiece(1,2);
+	board.placePiece(2,2);
+	board.placePiece(2,1);
+
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == X);
+}
+
+TEST(TicTacToeBoardTest, getWinnerByRowB)
+{
+	TicTacToeBoard board;
+	Piece piece;
+	/*
+	X X -
+	O O O
+	- - X
+	*/
+	
+	board.placePiece(0,0);
+	board.placePiece(1,0);
+	board.placePiece(0,1);
+	board.placePiece(1,1);
+	board.placePiece(2,2);
+	board.placePiece(1,2);
+
+	piece = board.getWinner();
+	ASSERT_FALSE(piece == X);
+	ASSERT_FALSE(piece == Blank);
+	ASSERT_FALSE(piece == Invalid);
+	ASSERT_TRUE(piece == O);
+}
+
+TEST(TicTacToeBoardTest, getWinnerByColC)
+{
+	TicTacToeBoard board;
+	Piece piece;
+	
+	board.placePiece(0,0);
+	board.placePiece(2,0);
+	board.placePiece(0,1);
+	board.placePiece(2,1);
+	board.placePiece(1,1);
+	board.placePiece(2,2);
+
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == O);
+}
+
+TEST(TicTacToeBoardTest, getWinnerDiagonallyA)
+{
+	TicTacToeBoard board;
+	Piece piece;
+
+	board.placePiece(0,0);
+	board.placePiece(0,1);
+	board.placePiece(1,1);
+	board.placePiece(1,2);
+	board.placePiece(2,2);
+
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == X);
+}
+
+TEST(TicTacToeBoardTest, getWinnerDiagonallyB)
+{
+	TicTacToeBoard board;
+	Piece piece;
+
+	board.placePiece(0,2);
+	board.placePiece(0,1);
+	board.placePiece(1,1);
+	board.placePiece(1,2);
+	board.placePiece(2,0);
+
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == X);
+}
+
+TEST(TicTacToeBoardTest, getWinnerWhenGameIsntOver)
+{
+	TicTacToeBoard board;
+	Piece piece;
+
+	board.placePiece(0,0);
+	board.placePiece(0,1);
+	
+	piece = board.getWinner();
+	ASSERT_FALSE(piece == Blank);
+	ASSERT_FALSE(piece == X);
+	ASSERT_FALSE(piece == O);
+	ASSERT_TRUE(piece == Invalid);
 }
