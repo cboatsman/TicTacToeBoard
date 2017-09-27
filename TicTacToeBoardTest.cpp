@@ -39,6 +39,25 @@ TEST(TicTacToeBoardTest, newBoardIsBlank)
 	ASSERT_TRUE(boardIsBlank);
 }
 
+/**
+ * BUG: getPiece(int,int) contains a bug, and the following test
+ *	specifically tests for said bug.
+ *	
+ *	EXPECTED OUTCOME: TRUE -- Piece should be equal to X (if getPiece is working)
+ *	ACTUAL OUTCOME:	FALSE -- Location is blank because getPiece is calling getPiece(column,row)
+ *				as opposed to getPiece(row,column)
+*/
+TEST(TicTacToeBoardTest, getPieceBuggy)
+{
+	TicTacToeBoard board;
+	int row=1, column=2;
+	Piece piece;
+	board.placePiece(row,column); // place piece at row 1, column 2
+	piece = board.getPiece(row,column);
+	ASSERT_TRUE(piece == X);
+}
+
+
 TEST(TicTacToeBoardTest, getPieceAtLocation)
 {
 	TicTacToeBoard board;
@@ -100,6 +119,27 @@ TEST(TicTacToeBoardTest, placePiece)
 	piece = board.placePiece(row,column);
 	ASSERT_TRUE(piece == X);
 
+}
+
+TEST(TicTacToeBoardTest, placePieceAfterWinner)
+{
+	TicTacToeBoard board;
+	Piece piece;
+	
+	board.placePiece(0,0);
+	board.placePiece(2,0);
+	board.placePiece(0,1);
+	board.placePiece(2,1);
+	board.placePiece(1,1);
+	board.placePiece(2,2);
+
+	piece = board.getWinner();
+	ASSERT_TRUE(piece == O);
+
+	board.placePiece(0,2); // currently blank spot
+	piece = board.getPiece(0,2);
+
+	ASSERT_TRUE(piece == Blank); // should be BLANK since already a winner
 }
 
 TEST(TicTacToeBoardTest, toggleTurnVerification)

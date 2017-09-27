@@ -72,6 +72,21 @@ Piece TicTacToeBoard::placePiece(int row, int column)
  * Returns what piece is at the provided coordinates, or Blank if there
  * are no pieces there, or Invalid if the coordinates are out of bounds
 **/
+
+/**
+ * BUG: getPiece(int,int) contains a bug where the following code is wrong:
+ * 	Piece piece = board[column][row];
+ *
+ *	The board is expecting to receive [row][column] but is instead
+ *	receiving a column value for the intended row, and likewise a row
+ *	value for the intended column.  This causes some (but not all) of my
+ *	test cases to fail.
+ *	
+ *	EXAMPLE: 		getPiece(2,1) is called
+ *	EXPECTED RETURN:	piece = board[2][1];
+ *	ACTUAL RETURN:		piece = board[1][2];
+ *
+**/
 Piece TicTacToeBoard::getPiece(int row, int column)
 {
 	if (!((row >= 0 && row < BOARDSIZE) && (column >= 0 && column < BOARDSIZE))) {
